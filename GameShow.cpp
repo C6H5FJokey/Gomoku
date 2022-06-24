@@ -12,11 +12,16 @@ static int _againFlickerTime = 0;
 
 void InitGameShow()
 {
-	Observer* _moveObserver;
-	_moveObserver = (Observer*)malloc(sizeof(Observer));
-	if (!_moveObserver) exit(OVERFLOW);
-	_moveObserver->onNotify = onNotifyMove;
-	AddObserver(GetGameEventSubject(), _moveObserver);
+	Observer* moveObserver;
+	Observer* pieceInLineObserver;
+	moveObserver = (Observer*)malloc(sizeof(Observer));
+	if (!moveObserver) exit(OVERFLOW);
+	moveObserver->onNotify = onNotifyMove;
+	AddObserver(GetGameEventSubject(), moveObserver);
+	pieceInLineObserver = (Observer*)malloc(sizeof(Observer));
+	if (!pieceInLineObserver) exit(OVERFLOW);
+	pieceInLineObserver->onNotify = onNotifyPieceInLine;
+	AddObserver(GetGameEventSubject(), pieceInLineObserver);
 }
 
 void GameShow(HANDLE& sOut)
@@ -35,7 +40,7 @@ void GameShow(HANDLE& sOut)
 	
 }
 
-void PaintChessboard1(HANDLE& sOut)
+static void PaintChessboard1(HANDLE& sOut)
 {
 	const wchar_t* chessboardChar[31] = {
 		L"¨X ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨h ¨[ ",
@@ -66,7 +71,7 @@ void PaintChessboard1(HANDLE& sOut)
 	}
 }
 
-void PaintPiece1(HANDLE& sOut)
+static void PaintPiece1(HANDLE& sOut)
 {
 	const wchar_t* pieceBlack = L"¡ð";
 	const wchar_t* pieceWhite = L"¡ñ";
@@ -88,7 +93,7 @@ void PaintPiece1(HANDLE& sOut)
 	}
 }
 
-void PaintCursor1(HANDLE& sOut)
+static void PaintCursor1(HANDLE& sOut)
 {
 	const wchar_t* pieceBlack = L"¡ñ";//È¡·´É«
 	const wchar_t* pieceWhite = L"¡ð";
@@ -113,7 +118,106 @@ void PaintCursor1(HANDLE& sOut)
 	}
 }
 
-void PaintUi1(HANDLE& sOut)
+static void PaintUi1(HANDLE& sOut) 
+{
+	PaintUi1_frame(sOut);
+	switch (GetGameState())
+	{
+	case GameState::MENU:
+		PaintUi1_menu(sOut);
+		break;
+	case GameState::LOOP:
+		PaintUi1_scores(sOut);
+		break;
+	case GameState::OVER:
+		PaintUi1_scores(sOut);
+		PaintUi1_end(sOut);
+	}
+}
+
+//static void PaintUi1(HANDLE& sOut)
+//{
+//	const wchar_t* uiChar[31] = {
+//		L"¨q ©¤ ©¤ ©¤ ©¤ ¨r ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"©¦         ©¦ ",
+//		L"¨t ©¤ ©¤ ©¤ ©¤ ¨s ",
+//	};
+//	const int cursorInterval = FRAMES_PRE_SEC / 2;
+//	int i,winCount;
+//	DWORD recnum;
+//	COORD coord = { 30,0 };
+//	wchar_t output[8];
+//	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+//	for (i = 0; i < 31; i++)
+//	{
+//		SetConsoleCursorPosition(sOut, coord);
+//		WriteConsole(sOut, uiChar[i], 12, &recnum, NULL);
+//		coord.Y++;
+//	}
+//	coord = { 33, 1 };
+//	SetConsoleCursorPosition(sOut, coord);
+//	WriteConsole(sOut, L"Scores", 6, &recnum, NULL);
+//	coord = { 32, 3 };
+//	winCount = GetWinCount(Piece::BLACK);
+//	wsprintf(output, L"P1¡ð¡ª%02d",winCount<=99?winCount:99);
+//	SetConsoleCursorPosition(sOut, coord);
+//	WriteConsole(sOut, output, 6, &recnum, NULL);
+//	coord = { 32, 5 };
+//	winCount = GetWinCount(Piece::WHITE);
+//	wsprintf(output, L"P2¡ñ¡ª%02d", winCount <= 99 ? winCount : 99);
+//	SetConsoleCursorPosition(sOut, coord);
+//	WriteConsole(sOut, output, 6, &recnum, NULL);
+//	if (GetGameState() == GameState::OVER) {
+//		coord = { 32, 8 };
+//		SetConsoleCursorPosition(sOut, coord);
+//		WriteConsole(sOut, L"GAMEOVER", 8, &recnum, NULL);
+//		coord = { 33, 10 };
+//		SetConsoleCursorPosition(sOut, coord);
+//		WriteConsole(sOut, L"WINNER", 6, &recnum, NULL);
+//		coord = { 34, 11 };
+//		SetConsoleCursorPosition(sOut, coord);
+//		switch (GetCurrentPlayer().player)
+//		{
+//		case Piece::BLACK:
+//			WriteConsole(sOut, L"P1¡ð", 3, &recnum, NULL);
+//			SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
+//			coord = { 32, 3 };
+//			SetConsoleCursorPosition(sOut, coord);
+//			WriteConsole(sOut, L"P1¡ñ", 3, &recnum, NULL);
+//			break;
+//		case Piece::WHITE:
+//			WriteConsole(sOut, L"P2¡ñ", 3, &recnum, NULL);
+//			SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
+//			coord = { 32, 5 };
+//			SetConsoleCursorPosition(sOut, coord);
+//			WriteConsole(sOut, L"P2¡ð", 3, &recnum, NULL);
+//			break;
+//		}
+//		if (!_againFlickerTime)_againFlickerTime = cursorInterval * 2;
+//		if (_againFlickerTime-- > cursorInterval) {
+//			SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+//		}
+//		coord = { 33, 13 };
+//		SetConsoleCursorPosition(sOut, coord);
+//		WriteConsole(sOut, L"AGAIN?", 6, &recnum, NULL);
+//
+//	}
+//	else _againFlickerTime = 0;
+//}
+
+static void PaintUi1_frame(HANDLE& sOut) 
 {
 	const wchar_t* uiChar[31] = {
 		L"¨q ©¤ ©¤ ©¤ ©¤ ¨r ",
@@ -132,24 +236,34 @@ void PaintUi1(HANDLE& sOut)
 		L"©¦         ©¦ ",
 		L"¨t ©¤ ©¤ ©¤ ©¤ ¨s ",
 	};
-	const int cursorInterval = FRAMES_PRE_SEC / 2;
-	int i,winCount;
+	int i;
 	DWORD recnum;
-	COORD coord = { 30,0 };
-	wchar_t output[8];
+	COORD coord;
 	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+	coord = { 30, 0 };
 	for (i = 0; i < 31; i++)
 	{
 		SetConsoleCursorPosition(sOut, coord);
 		WriteConsole(sOut, uiChar[i], 12, &recnum, NULL);
 		coord.Y++;
 	}
-	coord = { 33, 1 };
+}
+
+static void PaintUi1_scores(HANDLE& sOut) 
+{
+	const int cursorInterval = FRAMES_PRE_SEC / 2;
+	int winCount;
+	DWORD recnum;
+	COORD coord;
+	wchar_t output[8];
+	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN | COMMON_LVB_UNDERSCORE);
+	coord = { 32, 1 };
 	SetConsoleCursorPosition(sOut, coord);
-	WriteConsole(sOut, L"Scores", 6, &recnum, NULL);
+	WriteConsole(sOut, L"_Scores_", 8, &recnum, NULL);
+	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
 	coord = { 32, 3 };
 	winCount = GetWinCount(Piece::BLACK);
-	wsprintf(output, L"P1¡ð¡ª%02d",winCount<=99?winCount:99);
+	wsprintf(output, L"P1¡ð¡ª%02d", winCount <= 99 ? winCount : 99);
 	SetConsoleCursorPosition(sOut, coord);
 	WriteConsole(sOut, output, 6, &recnum, NULL);
 	coord = { 32, 5 };
@@ -157,47 +271,78 @@ void PaintUi1(HANDLE& sOut)
 	wsprintf(output, L"P2¡ñ¡ª%02d", winCount <= 99 ? winCount : 99);
 	SetConsoleCursorPosition(sOut, coord);
 	WriteConsole(sOut, output, 6, &recnum, NULL);
-	if (GetGameState() == GameState::OVER) {
-		coord = { 32, 8 };
-		SetConsoleCursorPosition(sOut, coord);
-		WriteConsole(sOut, L"GAMEOVER", 8, &recnum, NULL);
-		coord = { 33, 10 };
-		SetConsoleCursorPosition(sOut, coord);
-		WriteConsole(sOut, L"WINNER", 6, &recnum, NULL);
-		coord = { 34, 11 };
-		SetConsoleCursorPosition(sOut, coord);
-		switch (GetCurrentPlayer().player)
-		{
-		case Piece::BLACK:
-			WriteConsole(sOut, L"P1¡ð", 3, &recnum, NULL);
-			SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
-			coord = { 32, 3 };
-			SetConsoleCursorPosition(sOut, coord);
-			WriteConsole(sOut, L"P1¡ñ", 3, &recnum, NULL);
-			break;
-		case Piece::WHITE:
-			WriteConsole(sOut, L"P2¡ñ", 3, &recnum, NULL);
-			SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
-			coord = { 32, 5 };
-			SetConsoleCursorPosition(sOut, coord);
-			WriteConsole(sOut, L"P2¡ð", 3, &recnum, NULL);
-			break;
-		}
-		if (!_againFlickerTime)_againFlickerTime = cursorInterval * 2;
-		if (_againFlickerTime-- > cursorInterval) {
-			SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
-		}
-		coord = { 33, 13 };
-		SetConsoleCursorPosition(sOut, coord);
-		WriteConsole(sOut, L"AGAIN?", 6, &recnum, NULL);
-
-	}
-	else _againFlickerTime = 0;
 }
 
+static void PaintUi1_end(HANDLE& sOut)
+{
+	const int cursorInterval = FRAMES_PRE_SEC / 2;
+	DWORD recnum;
+	COORD coord;
+	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+	coord = { 32, 8 };
+	SetConsoleCursorPosition(sOut, coord);
+	WriteConsole(sOut, L"GAMEOVER", 8, &recnum, NULL);
+	coord = { 33, 10 };
+	SetConsoleCursorPosition(sOut, coord);
+	WriteConsole(sOut, L"WINNER", 6, &recnum, NULL);
+	coord = { 34, 11 };
+	SetConsoleCursorPosition(sOut, coord);
+	switch (GetCurrentPlayer().player)
+	{
+	case Piece::BLACK:
+		WriteConsole(sOut, L"P1¡ð", 3, &recnum, NULL);
+		SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
+		coord = { 32, 3 };
+		SetConsoleCursorPosition(sOut, coord);
+		WriteConsole(sOut, L"P1¡ñ", 3, &recnum, NULL);
+		break;
+	case Piece::WHITE:
+		WriteConsole(sOut, L"P2¡ñ", 3, &recnum, NULL);
+		SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
+		coord = { 32, 5 };
+		SetConsoleCursorPosition(sOut, coord);
+		WriteConsole(sOut, L"P2¡ð", 3, &recnum, NULL);
+		break;
+	}
+	if (!_againFlickerTime)_againFlickerTime = cursorInterval * 2;
+	if (_againFlickerTime-- > cursorInterval) {
+		SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+	}
+	coord = { 33, 13 };
+	SetConsoleCursorPosition(sOut, coord);
+	WriteConsole(sOut, L"AGAIN?", 6, &recnum, NULL);
+}
 
+static void PaintUi1_menu(HANDLE& sOut) 
+{
+	DWORD recnum;
+	COORD coord;
+	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN | COMMON_LVB_UNDERSCORE);
+	coord = { 32, 1 };
+	SetConsoleCursorPosition(sOut, coord);
+	WriteConsole(sOut, L"__Menu__", 8, &recnum, NULL);
+	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+	coord = { 32, 3 };
+	SetConsoleCursorPosition(sOut, coord);
+	WriteConsole(sOut, L"Play", 4, &recnum, NULL);
+	coord = { 32, 13 };
+	SetConsoleCursorPosition(sOut, coord);
+	WriteConsole(sOut, L"Exit", 4, &recnum, NULL);
+	switch (GetMenuOption())
+	{
+	case MenuOption::PLAY:
+		coord = { 32, 3 };
+		FillConsoleOutputAttribute(sOut, BACKGROUND_GREEN, 4, coord, &recnum);
+		break;
+	case MenuOption::EXIT:
+		coord = { 32, 13 };
+		FillConsoleOutputAttribute(sOut, BACKGROUND_GREEN, 4, coord, &recnum);
+		break;
+	}
 
-void PaintChessboard3(HANDLE& sOut)
+}
+
+static void PaintChessboard3(HANDLE& sOut)
 {
 	const wchar_t* chessboardChar[46] = {
 		L"                                                                                         ",
@@ -272,6 +417,10 @@ void PaintChessboard3(HANDLE& sOut)
 	}
 }
 
-void onNotifyMove(const void* object, int event) {
+static void onNotifyMove(const void* object, int event) {
 	_cursorTime = 0;
+}
+
+static void onNotifyPieceInLine(const void* object, int event) {
+	_againFlickerTime = 0;
 }

@@ -7,16 +7,26 @@ void InitGameShow();//ÃÌº”π€≤Ï’ﬂ
 
 void GameShow(HANDLE& sOut);
 
-void PaintChessboard1(HANDLE& sOut);//1*1
+static void PaintChessboard1(HANDLE& sOut);//1*1
 
-void PaintPiece1(HANDLE& sOut);
+static void PaintPiece1(HANDLE& sOut);
 
-void PaintCursor1(HANDLE& sOut);
+static void PaintCursor1(HANDLE& sOut);
 
-void PaintUi1(HANDLE& sOut);
+static void PaintUi1(HANDLE& sOut);
 
-void PaintChessboard3(HANDLE& sOut);//3*3
+static void PaintUi1_frame(HANDLE& sOut);
 
-void onNotifyMove(const void* object, int event);
+static void PaintUi1_scores(HANDLE& sOut);
+
+static void PaintUi1_end(HANDLE& sOut);
+
+static void PaintUi1_menu(HANDLE& sOut);
+
+static void PaintChessboard3(HANDLE& sOut);//3*3
+
+static void onNotifyMove(const void* object, int event);
+
+static void onNotifyPieceInLine(const void* object, int event);
 
 #endif // !__GAME_SHOW_H__

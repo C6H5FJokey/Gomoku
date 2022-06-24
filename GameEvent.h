@@ -8,7 +8,8 @@ enum class GameEvent
 	ERROR_FALL,//错误落棋
 	PIECE_IN_LINE,//五子连线
 	UNDO,//撤销
-	MOVE//移动
+	MOVE,//移动
+	EXIT//退出
 };//一些事件
 
 //游戏初始化调用

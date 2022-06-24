@@ -12,6 +12,7 @@ static Unit* _tempPlayer;
 static LkStack _execution;
 static Subject* _subject;
 static GameState _state;
+static MenuOption _menuOption;
 static int _winCount[2];
 
 void InitGameLoop() {
@@ -21,7 +22,8 @@ void InitGameLoop() {
 	if (!_player)exit(OVERFLOW);
 	_otherPlayer = (Unit*)malloc(sizeof(Unit));
 	if (!_otherPlayer)exit(OVERFLOW);
-	_state = GameState::LOOP;
+	_state = GameState::MENU;
+	_menuOption = MenuOption::PLAY;
 	_winCount[0] = 0;
 	_winCount[1] = 0;
 }
@@ -43,12 +45,46 @@ void InitGame() {
 		{MAX_SIZE / 2, MAX_SIZE / 2}
 	};
 	ClearStack_Lk(_execution);
-	_state = GameState::LOOP;
 }
 
 void GameLoop() {
 	switch (_state)
 	{
+	case GameState::MENU:
+		switch (_menuOption)
+		{
+		case MenuOption::PLAY:
+			switch (Move())
+			{
+			case Direction::UP:
+				_menuOption = MenuOption::EXIT;
+				break;
+			case Direction::DOWN:
+				_menuOption = MenuOption::EXIT;
+				break;
+			}
+			if (IsConfirming())
+			{
+				InitGame();
+				_state = GameState::LOOP;
+			}
+			break;
+		case MenuOption::EXIT:
+			switch (Move())
+			{
+			case Direction::UP:
+				_menuOption = MenuOption::PLAY;
+			case Direction::DOWN:
+				_menuOption = MenuOption::PLAY;
+			}
+			if (IsConfirming())
+			{
+				GameEventNotify(_subject, _player, (int)GameEvent::EXIT);
+				exit(0);
+			}
+			break;
+		}
+		break;
 	case GameState::LOOP:
 		switch (Move())
 		{
@@ -98,9 +134,15 @@ void GameLoop() {
 		}
 		break;
 	case GameState::OVER:
-		if (IsUndoing()||IsConfirming()) {
+		if (IsConfirming()) {
 			InitGame();
 			_state = GameState::LOOP;
+		}
+		else if(IsUndoing())
+		{
+
+			_menuOption = MenuOption::PLAY;
+			_state = GameState::MENU;
 		}
 		break;
 	}
@@ -198,4 +240,9 @@ void AddWinCount(Piece player) {
 		_winCount[1]++;
 		return ;
 	}
+}
+
+MenuOption GetMenuOption() 
+{
+	return _menuOption;
 }

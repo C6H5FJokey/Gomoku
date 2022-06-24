@@ -15,6 +15,12 @@ enum class GameState
 	OVER
 };
 
+enum class MenuOption
+{
+	PLAY,
+	EXIT
+};
+
 /*初始化游戏循环参数*/
 void InitGameLoop();
 
@@ -50,5 +56,8 @@ int GetWinCount(Piece player);
 
 /*增加胜利数*/
 void AddWinCount(Piece player);
+
+/*获得菜单当前选项*/
+MenuOption GetMenuOption();
 
 #endif // !__GAME_LOGIC_H__
