@@ -66,6 +66,7 @@ void GameLoop() {
 			if (IsConfirming())
 			{
 				InitGame();
+				ClearWinCount();
 				_state = GameState::LOOP;
 			}
 			break;
@@ -240,6 +241,12 @@ void AddWinCount(Piece player) {
 		_winCount[1]++;
 		return ;
 	}
+}
+
+static void ClearWinCount()
+{
+	_winCount[0] = 0;
+	_winCount[1] = 0;
 }
 
 MenuOption GetMenuOption() 

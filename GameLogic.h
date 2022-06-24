@@ -57,6 +57,9 @@ int GetWinCount(Piece player);
 /*增加胜利数*/
 void AddWinCount(Piece player);
 
+/*清空胜利数*/
+static void ClearWinCount();
+
 /*获得菜单当前选项*/
 MenuOption GetMenuOption();
 
