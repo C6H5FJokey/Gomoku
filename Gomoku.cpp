@@ -18,6 +18,12 @@ int main()
 #include "Show.h"
 #include "GameShow.h"
 #include "GameEvent.h"
+#include "SqList.h"
+
+Status visit1(const void* data, void* addition) {
+	printf("%d ", *(int*)data);
+	return OK;
+}
 
 int main() 
 {
@@ -67,7 +73,7 @@ int main()
 			printf("\n");
 		}
 	}*/
-	InitGameEvent();
+	/*InitGameEvent();
 	InitGameLoop();
 	InitGame();
 	InitShow();
@@ -78,8 +84,22 @@ int main()
 		ProcessInput();
 		GameLoop();
 		Show();
+	}*/
+	/*SqList L;
+	int j;
+	InitList_Sq(L);
+	for (int i = 0; i < 11; i++) {
+		Append_Sq(L, &i, sizeof(i));
 	}
+	ListTraverse_Sq(L, visit1, NULL);
+	printf("\n");
+	for (int i = 1; i <= 11 ; i++) {
+		j = 11 - i;
+		SetElem_Sq(L, i, &j, sizeof(j));
+	}
+	ListTraverse_Sq(L, visit1, NULL);*/
     return 0;
+
 }
 
 #endif // DEBUG

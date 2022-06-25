@@ -110,23 +110,23 @@ Status GetElem_Sq(SqList L, int i, void* e)
     return OK;
 }
 
-Status SetElem_Sq(SqList L, int i, const void* e, size_t n)
+Status SetElem_Sq(SqList& L, int i, const void* e, size_t n)
 {
     char* buffer;
     if (i<1 || i > L.length) return ERROR;
-    if (L.elem[i].n == n) 
+    if (L.elem[i-1].n == n) 
     {
-        buffer = (char*)L.elem[i].data;
+        buffer = (char*)L.elem[i-1].data;
     }
     else
     {
         buffer = (char*)malloc(n);
         if (!buffer)exit(OVERFLOW);
-        free(L.elem[i].data);
-        L.elem[i].n = n;
+        free(L.elem[i-1].data);
+        L.elem[i-1].n = n;
     }
     memcpy(buffer, e, n);
-    L.elem[i].data = buffer;
+    L.elem[i-1].data = buffer;
     return OK;
 }
 

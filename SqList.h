@@ -50,7 +50,7 @@ Status ListDelete_Sq(SqList& L, int i, void* e);
 Status GetElem_Sq(SqList L, int i, void* e);
 
 //函数：修改表中第i个元素为e，n为元素e的空间大小
-Status SetElem_Sq(SqList L, int i, void* e, size_t n);
+Status SetElem_Sq(SqList& L, int i, const void* e, size_t n);
 
 //遍历整个表 可以附加额外数据
 Status ListTraverse_Sq(SqList L, Status(*visit)(const void*, void*), void* addition);
