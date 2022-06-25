@@ -15,8 +15,6 @@ enum class Piece{
 	WHITE
 };//Æå×Ó
 
-typedef Piece Chessborad[MAX_SIZE][MAX_SIZE];
-
 typedef struct {
 	int x;
 	int y;

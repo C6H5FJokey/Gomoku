@@ -16,6 +16,18 @@ static MenuOption _menuOption;
 static int _winCount[2];
 
 void InitGameLoop() {
+	SqList L;
+	int i,j;
+	Piece piece = Piece::NONE;
+	InitList_Sq(_chessboard);
+	for (i = 0; i < MAX_SIZE; i++) {
+		InitList_Sq(L);
+		for (j = 0; j < MAX_SIZE; j++)
+		{
+			Append_Sq(L, &piece, sizeof(piece));
+		}
+		Append_Sq(_chessboard, &L, sizeof(L));
+	}
 	InitStack_Lk(_execution);
 	_subject = GetGameEventSubject();
 	_player = (Unit*)malloc(sizeof(Unit));
@@ -32,7 +44,7 @@ void InitGame() {
 	for (int i = 0; i < MAX_SIZE; i++)
 	{
 		for (int j = 0; j < MAX_SIZE; j++) {
-			_chessboard[i][j] = Piece::NONE;
+			SetChessboardXY(j, i, Piece::NONE);
 		}
 	}
 	*_player = {
@@ -153,8 +165,8 @@ void GameLoop() {
 Status FallPiece(Chessborad& chessboard, Unit unit) {
 	int x = unit.point.x;
 	int y = unit.point.y;
-	if (chessboard[y][x] != Piece::NONE) return FALSE;
-	chessboard[y][x] = unit.player;
+	if (GetChessboardXY(x,y) != Piece::NONE) return FALSE;
+	SetChessboardXY(x, y, unit.player);
 	Push_Lk(_execution, &unit, sizeof(unit));
 	return TRUE;
 }
@@ -165,7 +177,7 @@ Status UndoPiece(Chessborad& chessboard, Unit& unit) {
 	Pop_Lk(_execution, &unit);
 	x = unit.point.x;
 	y = unit.point.y;
-	chessboard[y][x] = Piece::NONE;
+	SetChessboardXY(x, y, Piece::NONE);
 	return TRUE;
 }
 
@@ -174,33 +186,33 @@ Status PieceInLine(Chessborad chessboard, Unit unit) {
 	int y = unit.point.y;
 	int count = 0;
 	//横向搜索 先左后右
-	while (--x >= 0 && chessboard[y][x] == unit.player) count++;
+	while (--x >= 0 && GetChessboardXY(x, y) == unit.player) count++;
 	x = unit.point.x;
-	while (++x < MAX_SIZE && chessboard[y][x] == unit.player) count++;
+	while (++x < MAX_SIZE && GetChessboardXY(x, y) == unit.player) count++;
 	x = unit.point.x;
 	if (count + 1 >= 5)return TRUE;//自己的位置要加上
 	count = 0;//搜索失败 还原
 	//纵向搜索 先上后下
-	while (--y >= 0 && chessboard[y][x] == unit.player) count++;
+	while (--y >= 0 && GetChessboardXY(x, y) == unit.player) count++;
 	y = unit.point.y;
-	while (++y < MAX_SIZE && chessboard[y][x] == unit.player) count++;
+	while (++y < MAX_SIZE && GetChessboardXY(x, y) == unit.player) count++;
 	y = unit.point.y;
 	if (count + 1 >= 5)return TRUE;//自己的位置要加上
 	count = 0;//搜索失败 还原
 	//斜向搜索 先左上后右下
-	while (--x >= 0 && --y >= 0 && chessboard[y][x] == unit.player) count++;
+	while (--x >= 0 && --y >= 0 && GetChessboardXY(x, y) == unit.player) count++;
 	x = unit.point.x;
 	y = unit.point.y;
-	while (++x < MAX_SIZE && ++y < MAX_SIZE && chessboard[y][x] == unit.player) count++;
+	while (++x < MAX_SIZE && ++y < MAX_SIZE && GetChessboardXY(x, y) == unit.player) count++;
 	x = unit.point.x;
 	y = unit.point.y;
 	if (count + 1 >= 5)return TRUE;//自己的位置要加上
 	count = 0;//搜索失败 还原
 	//斜向搜索 先左下后右上
-	while (--x >= 0 && ++y >= 0 && chessboard[y][x] == unit.player) count++;
+	while (--x >= 0 && ++y >= 0 && GetChessboardXY(x, y) == unit.player) count++;
 	x = unit.point.x;
 	y = unit.point.y;
-	while (++x < MAX_SIZE && --y < MAX_SIZE && chessboard[y][x] == unit.player) count++;
+	while (++x < MAX_SIZE && --y < MAX_SIZE && GetChessboardXY(x, y) == unit.player) count++;
 	x = unit.point.x;
 	y = unit.point.y;
 	if (count + 1 >= 5)return TRUE;//自己的位置要加上
@@ -208,7 +220,17 @@ Status PieceInLine(Chessborad chessboard, Unit unit) {
 }
 
 Piece GetChessboardXY(int x, int y) {
-	return _chessboard[y][x];
+	SqList L;
+	Piece piece;
+	GetElem_Sq(_chessboard, y+1, &L);
+	GetElem_Sq(L, x+1, &piece);
+	return piece;
+}
+
+static void SetChessboardXY(int x, int y, Piece piece) {
+	SqList L;
+	GetElem_Sq(_chessboard, y+1, &L);
+	SetElem_Sq(L, x+1, &piece, sizeof(piece));
 }
 
 Unit GetCurrentPlayer() {

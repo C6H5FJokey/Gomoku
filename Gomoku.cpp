@@ -1,10 +1,25 @@
 ﻿#ifndef _DEBUG
 
-#include <iostream>
+#include "UserInput.h"
+#include "GameLogic.h"
+#include "Show.h"
+#include "GameShow.h"
+#include "GameEvent.h"
 
 int main()
 {
-    std::cout << "Hello World!\n";
+	InitGameEvent();
+	InitGameLoop();
+	InitGame();
+	InitShow();
+	InitGameShow();
+	SetShow(GameShow);
+	while (true)
+	{
+		ProcessInput();
+		GameLoop();
+		Show();
+	}
 }
 
 #else
@@ -18,7 +33,7 @@ int main()
 #include "Show.h"
 #include "GameShow.h"
 #include "GameEvent.h"
-#include "SqList.h"
+//#include "SqList.h"
 
 Status visit1(const void* data, void* addition) {
 	printf("%d ", *(int*)data);
@@ -73,7 +88,7 @@ int main()
 			printf("\n");
 		}
 	}*/
-	/*InitGameEvent();
+	InitGameEvent();
 	InitGameLoop();
 	InitGame();
 	InitShow();
@@ -84,7 +99,7 @@ int main()
 		ProcessInput();
 		GameLoop();
 		Show();
-	}*/
+	}
 	/*SqList L;
 	int j;
 	InitList_Sq(L);

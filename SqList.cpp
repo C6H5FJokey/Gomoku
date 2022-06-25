@@ -4,7 +4,7 @@
 
 Status InitList_Sq(SqList& L)
 {
-    L.elem = (SqNode*)malloc(LIST_INIT_SIZE * sizeof(void*));
+    L.elem = (SqNode*)malloc(LIST_INIT_SIZE * sizeof(SqNode));
     if (!L.elem)exit(OVERFLOW);
     L.length = 0;
     L.listsize = LIST_INIT_SIZE;
@@ -39,7 +39,7 @@ Status Append_Sq(SqList& L, const void* e, size_t n)
     SqNode* newbase;
     char* buffer;
     if (L.length >= L.listsize) {
-        newbase = (SqNode*)realloc(L.elem, sizeof(void*) * L.listsize * 2);
+        newbase = (SqNode*)realloc(L.elem, sizeof(SqNode) * L.listsize * 2);
         if (!newbase) exit(OVERFLOW);
         L.elem = newbase;
         L.listsize *= 2;
@@ -61,7 +61,7 @@ Status ListInsert_Sq(SqList& L, int i, const void* e, size_t n)
     char* buffer;
     if (i < 1 || i > L.length + 1)return ERROR;
     if (L.length >= L.listsize) {
-        newbase = (SqNode*)realloc(L.elem, sizeof(void*) * L.listsize * 2);
+        newbase = (SqNode*)realloc(L.elem, sizeof(SqNode) * L.listsize * 2);
         if (!newbase) exit(OVERFLOW);
         L.elem = newbase;
         L.listsize *= 2;
@@ -106,7 +106,7 @@ Status ListDelete_Sq(SqList& L, int i, void* e)
 Status GetElem_Sq(SqList L, int i, void* e)
 {
     if (i<1 || i > L.length) return ERROR;
-    memcpy(e, L.elem[i].data, L.elem[i].n);
+    memcpy(e, L.elem[i-1].data, L.elem[i-1].n);
     return OK;
 }
 

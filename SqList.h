@@ -7,7 +7,7 @@
 #define OK 1
 #define ERROR 0
 
-#define LIST_INIT_SIZE 14
+#define LIST_INIT_SIZE 8
 
 typedef int Status;
 

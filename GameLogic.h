@@ -2,6 +2,9 @@
 #define __GAME_LOGIC_H__
 
 #include "CommonData.h"
+#include "SqList.h"
+
+typedef SqList Chessborad;
 
 typedef struct {
 	Piece player;
@@ -30,8 +33,11 @@ void GameLoop();
 /*初始化游戏*/
 void InitGame();
 
-/*获得棋盘(x,y)位置元素*/
+/*获得棋盘(x,y)位置元素 x=1..15 y=1..15*/
 Piece GetChessboardXY(int x, int y);
+
+/*设置棋盘(x,y)位置元素 x=0..14 y=0..14 方便数组循环*/
+static void SetChessboardXY(int x, int y, Piece piece);
 
 /*获得当前玩家信息*/
 Unit GetCurrentPlayer();
