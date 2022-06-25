@@ -147,6 +147,7 @@
     <ClCompile Include="GameLogic.cpp" />
     <ClCompile Include="Gomoku.cpp" />
     <ClCompile Include="Show.cpp" />
+    <ClCompile Include="SqList.cpp" />
     <ClCompile Include="UserInput.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +158,7 @@
     <ClInclude Include="LkList.h" />
     <ClInclude Include="LkStack.h" />
     <ClInclude Include="Show.h" />
+    <ClInclude Include="SqList.h" />
     <ClInclude Include="UserInput.h" />
   </ItemGroup>
   <ItemGroup>
