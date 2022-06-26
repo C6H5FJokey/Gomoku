@@ -7,6 +7,7 @@ enum class GameEvent
 {
 	ERROR_FALL,//错误落棋
 	PIECE_IN_LINE,//五子连线
+	DEADLOCK,//平局
 	UNDO,//撤销
 	MOVE,//移动
 	EXIT//退出

@@ -28,7 +28,7 @@ void InitShow() {
 	_cinfo.srWindow.Bottom =_consoleSize.Y;
 	SetConsoleWindowInfo(_hOut, TRUE, &_cinfo.srWindow);
 	SetConsoleWindowInfo(_sOut, TRUE, &_cinfo.srWindow);
-	size = { _cinfo.srWindow.Right, _cinfo.srWindow.Bottom };
+	size = { _consoleSize.X, _consoleSize.Y };
 	size.X;
 	size.Y;
 	SetConsoleScreenBufferSize(_hOut, size);

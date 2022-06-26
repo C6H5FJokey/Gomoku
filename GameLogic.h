@@ -69,4 +69,7 @@ static void ClearWinCount();
 /*获得菜单当前选项*/
 MenuOption GetMenuOption();
 
+/*获得胜利者信息*/
+Piece GetWinner();
+
 #endif // !__GAME_LOGIC_H__

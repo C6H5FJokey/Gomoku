@@ -45,6 +45,9 @@
     <ClCompile Include="SqList.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="LkStack.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameLogic.h">

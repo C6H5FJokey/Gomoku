@@ -29,4 +29,6 @@ static void onNotifyMove(const void* object, int event);
 
 static void onNotifyPieceInLine(const void* object, int event);
 
+static void onNotifyDeadlock(const void* object, int event);
+
 #endif // !__GAME_SHOW_H__

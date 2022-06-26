@@ -5,12 +5,14 @@
 
 Status InitList_DuL(DuLkList& L)
 {
+	int* length;
 	L = (DuLkList)malloc(sizeof(DuLNode));
 	if (!L)exit(OVERFLOW);
-	int* length = (int*)malloc(sizeof(int));//L->data为长度
+	length = (int*)malloc(sizeof(int));//L->data为长度
 	if (!length)exit(OVERFLOW);
 	*length = 0;
 	L->data = length;//L->data为length
+	L->n = sizeof(int);
 	L->prior = L;
 	L->next = L;
 	return OK;

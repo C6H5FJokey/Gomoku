@@ -14,6 +14,7 @@ void InitGameShow()
 {
 	Observer* moveObserver;
 	Observer* pieceInLineObserver;
+	Observer* deadlockObserver;
 	moveObserver = (Observer*)malloc(sizeof(Observer));
 	if (!moveObserver) exit(OVERFLOW);
 	moveObserver->onNotify = onNotifyMove;
@@ -22,6 +23,10 @@ void InitGameShow()
 	if (!pieceInLineObserver) exit(OVERFLOW);
 	pieceInLineObserver->onNotify = onNotifyPieceInLine;
 	AddObserver(GetGameEventSubject(), pieceInLineObserver);
+	deadlockObserver = (Observer*)malloc(sizeof(Observer));
+	if (!deadlockObserver) exit(OVERFLOW);
+	deadlockObserver->onNotify = onNotifyDeadlock;
+	AddObserver(GetGameEventSubject(), deadlockObserver);
 }
 
 void GameShow(HANDLE& sOut)
@@ -135,88 +140,6 @@ static void PaintUi1(HANDLE& sOut)
 	}
 }
 
-//static void PaintUi1(HANDLE& sOut)
-//{
-//	const wchar_t* uiChar[31] = {
-//		L"¨q ©¤ ©¤ ©¤ ©¤ ¨r ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"©¦         ©¦ ",
-//		L"¨t ©¤ ©¤ ©¤ ©¤ ¨s ",
-//	};
-//	const int cursorInterval = FRAMES_PRE_SEC / 2;
-//	int i,winCount;
-//	DWORD recnum;
-//	COORD coord = { 30,0 };
-//	wchar_t output[8];
-//	SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
-//	for (i = 0; i < 31; i++)
-//	{
-//		SetConsoleCursorPosition(sOut, coord);
-//		WriteConsole(sOut, uiChar[i], 12, &recnum, NULL);
-//		coord.Y++;
-//	}
-//	coord = { 33, 1 };
-//	SetConsoleCursorPosition(sOut, coord);
-//	WriteConsole(sOut, L"Scores", 6, &recnum, NULL);
-//	coord = { 32, 3 };
-//	winCount = GetWinCount(Piece::BLACK);
-//	wsprintf(output, L"P1¡ð¡ª%02d",winCount<=99?winCount:99);
-//	SetConsoleCursorPosition(sOut, coord);
-//	WriteConsole(sOut, output, 6, &recnum, NULL);
-//	coord = { 32, 5 };
-//	winCount = GetWinCount(Piece::WHITE);
-//	wsprintf(output, L"P2¡ñ¡ª%02d", winCount <= 99 ? winCount : 99);
-//	SetConsoleCursorPosition(sOut, coord);
-//	WriteConsole(sOut, output, 6, &recnum, NULL);
-//	if (GetGameState() == GameState::OVER) {
-//		coord = { 32, 8 };
-//		SetConsoleCursorPosition(sOut, coord);
-//		WriteConsole(sOut, L"GAMEOVER", 8, &recnum, NULL);
-//		coord = { 33, 10 };
-//		SetConsoleCursorPosition(sOut, coord);
-//		WriteConsole(sOut, L"WINNER", 6, &recnum, NULL);
-//		coord = { 34, 11 };
-//		SetConsoleCursorPosition(sOut, coord);
-//		switch (GetCurrentPlayer().player)
-//		{
-//		case Piece::BLACK:
-//			WriteConsole(sOut, L"P1¡ð", 3, &recnum, NULL);
-//			SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
-//			coord = { 32, 3 };
-//			SetConsoleCursorPosition(sOut, coord);
-//			WriteConsole(sOut, L"P1¡ñ", 3, &recnum, NULL);
-//			break;
-//		case Piece::WHITE:
-//			WriteConsole(sOut, L"P2¡ñ", 3, &recnum, NULL);
-//			SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
-//			coord = { 32, 5 };
-//			SetConsoleCursorPosition(sOut, coord);
-//			WriteConsole(sOut, L"P2¡ð", 3, &recnum, NULL);
-//			break;
-//		}
-//		if (!_againFlickerTime)_againFlickerTime = cursorInterval * 2;
-//		if (_againFlickerTime-- > cursorInterval) {
-//			SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
-//		}
-//		coord = { 33, 13 };
-//		SetConsoleCursorPosition(sOut, coord);
-//		WriteConsole(sOut, L"AGAIN?", 6, &recnum, NULL);
-//
-//	}
-//	else _againFlickerTime = 0;
-//}
-
 static void PaintUi1_frame(HANDLE& sOut) 
 {
 	const wchar_t* uiChar[31] = {
@@ -287,26 +210,33 @@ static void PaintUi1_end(HANDLE& sOut)
 	WriteConsole(sOut, L"WINNER", 6, &recnum, NULL);
 	coord = { 34, 11 };
 	SetConsoleCursorPosition(sOut, coord);
-	switch (GetCurrentPlayer().player)
+	switch (GetWinner())
 	{
 	case Piece::BLACK:
-		WriteConsole(sOut, L"P1¡ð", 3, &recnum, NULL);
+		WriteConsole(sOut, L"P1¡ð", 4, &recnum, NULL);
 		SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
 		coord = { 32, 3 };
 		SetConsoleCursorPosition(sOut, coord);
-		WriteConsole(sOut, L"P1¡ñ", 3, &recnum, NULL);
+		WriteConsole(sOut, L"P1¡ñ", 4, &recnum, NULL);
 		break;
 	case Piece::WHITE:
-		WriteConsole(sOut, L"P2¡ñ", 3, &recnum, NULL);
+		WriteConsole(sOut, L"P2¡ñ", 4, &recnum, NULL);
 		SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
 		coord = { 32, 5 };
 		SetConsoleCursorPosition(sOut, coord);
-		WriteConsole(sOut, L"P2¡ð", 3, &recnum, NULL);
+		WriteConsole(sOut, L"P2¡ð", 4, &recnum, NULL);
+		break;
+	case Piece::NONE:
+		WriteConsole(sOut, L"NONE", 4, &recnum, NULL);
 		break;
 	}
 	if (!_againFlickerTime)_againFlickerTime = cursorInterval * 2;
 	if (_againFlickerTime-- > cursorInterval) {
 		SetConsoleTextAttribute(sOut, FOREGROUND_GREEN);
+	}
+	else
+	{
+		SetConsoleTextAttribute(sOut, BACKGROUND_GREEN);
 	}
 	coord = { 33, 13 };
 	SetConsoleCursorPosition(sOut, coord);
@@ -418,9 +348,24 @@ static void PaintChessboard3(HANDLE& sOut)
 }
 
 static void onNotifyMove(const void* object, int event) {
-	_cursorTime = 0;
+	if ((GameEvent)event == GameEvent::MOVE)
+	{
+		_cursorTime = 0;
+	}
 }
 
 static void onNotifyPieceInLine(const void* object, int event) {
-	_againFlickerTime = 0;
+	if ((GameEvent)event == GameEvent::PIECE_IN_LINE)
+	{
+		_againFlickerTime = 0;
+	}
 }
+
+static void onNotifyDeadlock(const void* object, int event)
+{
+	if ((GameEvent)event == GameEvent::DEADLOCK)
+	{
+		_againFlickerTime = 0;
+	}
+}
+

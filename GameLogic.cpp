@@ -14,6 +14,7 @@ static Subject* _subject;
 static GameState _state;
 static MenuOption _menuOption;
 static int _winCount[2];
+static Piece _winner;
 
 void InitGameLoop() {
 	SqList L;
@@ -41,9 +42,10 @@ void InitGameLoop() {
 }
 
 void InitGame() {
-	for (int i = 0; i < MAX_SIZE; i++)
+	int i, j;
+	for (i = 0; i < MAX_SIZE; i++)
 	{
-		for (int j = 0; j < MAX_SIZE; j++) {
+		for (j = 0; j < MAX_SIZE; j++) {
 			SetChessboardXY(j, i, Piece::NONE);
 		}
 	}
@@ -122,12 +124,18 @@ void GameLoop() {
 			if (FallPiece(_chessboard, *_player)) {
 				if (PieceInLine(_chessboard, *_player)) {
 					_subject->notify(_subject, _player, (int)GameEvent::PIECE_IN_LINE);
-					_state = GameState::OVER;
+					_winner = _player->player;
 					AddWinCount(_player->player);
+					_state = GameState::OVER;
 				}
 				else
 				{
 					_tempPlayer = _player; _player = _otherPlayer; _otherPlayer = _tempPlayer;//交换玩家
+					if (StackLength_Lk(_execution) >= 225) {//15*15棋盘下满了
+						_subject->notify(_subject, _player, (int)GameEvent::DEADLOCK);
+						_winner = Piece::NONE;
+						_state = GameState::OVER;
+					}
 				}
 			}
 			else
@@ -274,4 +282,9 @@ static void ClearWinCount()
 MenuOption GetMenuOption() 
 {
 	return _menuOption;
+}
+
+Piece GetWinner() 
+{
+	return _winner;
 }
